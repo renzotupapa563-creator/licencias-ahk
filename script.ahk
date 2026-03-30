@@ -16,7 +16,8 @@ hwid := Trim(serial)
 
 ; 🌐 Descargar archivo
 tempFile := A_Temp "\licencias.txt"
-UrlDownloadToFile, %url%, %tempFile%
+url2 := url "?nocache=" A_TickCount
+UrlDownloadToFile, %url2%, %tempFile%
 
 FileRead, content, %tempFile%
 
