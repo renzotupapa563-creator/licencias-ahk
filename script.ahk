@@ -25,18 +25,17 @@ needsBind := false
 Loop, Parse, content, `n, `r
 {
     StringSplit, parts, A_LoopField, |
-    clave := parts1
-    keyHWID := parts2
+    clave := Trim(parts1)
+    keyHWID := Trim(parts2)
 
-    if (clave = userKey)
+    if (StrLower(clave) = StrLower(userKey))
     {
         if (keyHWID = "")
         {
             needsBind := true
-            valid := false
             break
         }
-        else if (keyHWID = hwid)
+        else if (Trim(keyHWID) = Trim(hwid))
         {
             valid := true
             break
@@ -48,7 +47,6 @@ Loop, Parse, content, `n, `r
         }
     }
 }
-
 if (needsBind)
 {
     MsgBox, 64, Activación, Envíame este código para activar tu licencia:`n`n%hwid%
