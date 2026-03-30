@@ -35,6 +35,7 @@ Loop, Parse, content, `n, `r
     {
         clave := Trim(SubStr(line, 1, pos-1))
         keyHWID := Trim(SubStr(line, pos+1))
+keyHWID := RegExReplace(keyHWID, "[^0-9]")
     }
     else
     {
@@ -54,7 +55,7 @@ Loop, Parse, content, `n, `r
         }
 
         ; ✅ ACTIVADA
-        if (keyHWID = hwid)
+        if (Trim(keyHWID) = Trim(hwid))
         {
             valid := true
             break
