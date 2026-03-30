@@ -65,3 +65,23 @@ MsgBox, 64, OK, Licencia válida ✔
 
 SetTimer, StaminaHack, 100
 return
+
+StaminaHack:
+Process, Exist, gta_sa.exe
+pid := ErrorLevel
+
+if (pid)
+{
+    hProcess := DllCall("OpenProcess", "UInt", 0x1F0FFF, "Int", 0, "UInt", pid)
+
+    ; Dirección de stamina (GTA SA 1.0 US)
+    staminaAddr := 0xB7CDB4
+
+    VarSetCapacity(buffer, 4, 0)
+    NumPut(1000.0, buffer, 0, "Float") ; stamina alta
+
+    DllCall("WriteProcessMemory", "Ptr", hProcess, "Ptr", staminaAddr, "Ptr", &buffer, "UInt", 4, "Ptr", 0)
+
+    DllCall("CloseHandle", "Ptr", hProcess)
+}
+return
