@@ -2,55 +2,67 @@
 
 url := "https://raw.githubusercontent.com/renzotupapa563-creator/licencias-ahk/main/licencias.txt"
 
-; 🧠 Obtener HWID
-DriveGet, serial, Serial, C:\
-hwid := serial
-
 ; 🔑 Pedir clave
 InputBox, userKey, Licencia, Ingresa tu clave:
-if (userKey = "")
-{
-    MsgBox, Cancelado
+if (ErrorLevel)
     ExitApp
-}
 
-; 🌐 Descargar lista
-tempFile := A_Temp "\keys.txt"
+userKey := Trim(userKey)
+StringLower, userKey, userKey
+
+; 🧠 HWID
+DriveGet, serial, Serial, C:\
+hwid := Trim(serial)
+
+; 🌐 Descargar archivo
+tempFile := A_Temp "\licencias.txt"
 UrlDownloadToFile, %url%, %tempFile%
+
 FileRead, content, %tempFile%
 
 valid := false
-needsBind := false
 
 Loop, Parse, content, `n, `r
 {
-    StringSplit, parts, A_LoopField, |
-    clave := Trim(parts1)
-    keyHWID := Trim(parts2)
+    line := Trim(A_LoopField)
+    if (line = "")
+        continue
 
-    if (StrLower(clave) = StrLower(userKey))
+    pos := InStr(line, "|")
+
+    if (pos)
     {
+        clave := Trim(SubStr(line, 1, pos-1))
+        keyHWID := Trim(SubStr(line, pos+1))
+    }
+    else
+    {
+        clave := Trim(line)
+        keyHWID := ""
+    }
+
+    StringLower, clave, clave
+
+    if (clave = userKey)
+    {
+        ; 🔓 SIN ACTIVAR
         if (keyHWID = "")
         {
-            needsBind := true
-            break
+            MsgBox, 64, Activación, Envíame este código:`n`n%hwid%
+            ExitApp
         }
-        else if (Trim(keyHWID) = Trim(hwid))
+
+        ; ✅ ACTIVADA
+        if (keyHWID = hwid)
         {
             valid := true
             break
         }
-        else
-        {
-            MsgBox, 48, Error, Esta licencia ya está usada en otra PC
-            ExitApp
-        }
+
+        ; ❌ YA USADA
+        MsgBox, 48, Error, Licencia usada en otra PC
+        ExitApp
     }
-}
-if (needsBind)
-{
-    MsgBox, 64, Activación, Envíame este código para activar tu licencia:`n`n%hwid%
-    ExitApp
 }
 
 if (!valid)
@@ -59,10 +71,11 @@ if (!valid)
     ExitApp
 }
 
-MsgBox, 64, OK, Licencia válida ✔
+MsgBox, 64, OK, Acceso concedido ✔
 
 SetTimer, StaminaHack, 100
 return
+
 
 StaminaHack:
 Process, Exist, gta_sa.exe
@@ -72,11 +85,10 @@ if (pid)
 {
     hProcess := DllCall("OpenProcess", "UInt", 0x1F0FFF, "Int", 0, "UInt", pid)
 
-    ; Dirección de stamina (GTA SA 1.0 US)
     staminaAddr := 0xB7CDB4
 
     VarSetCapacity(buffer, 4, 0)
-    NumPut(1000.0, buffer, 0, "Float") ; stamina alta
+    NumPut(1000.0, buffer, 0, "Float")
 
     DllCall("WriteProcessMemory", "Ptr", hProcess, "Ptr", staminaAddr, "Ptr", &buffer, "UInt", 4, "Ptr", 0)
 
