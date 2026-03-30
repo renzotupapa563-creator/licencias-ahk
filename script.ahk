@@ -5,7 +5,7 @@ url := "https://raw.githubusercontent.com/renzotupapa563-creator/licencias-ahk/m
 repoOwner := "renzotupapa563-creator"
 repoName := "licencias-ahk"
 filePath := "licencias.txt"
-githubToken := "TU_TOKEN_PERSONAL" ; <- aquí pones tu token de GitHub
+githubToken := "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" ; <- aquí pones tu token de GitHub
 
 ; 🧠 Generar HWID
 DllCall("GetVolumeInformation", "Str", "C:\", "Str", "", "UInt", 0, "UInt*", serial, "UInt", 0, "UInt", 0, "Str", "", "UInt", 0)
