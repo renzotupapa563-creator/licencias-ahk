@@ -1,7 +1,11 @@
 #Persistent
 
 ; 🔐 CONFIG
-url := "https://tu-link.com/licencias.txt" ; ← CAMBIA ESTO
+url := "https://raw.githubusercontent.com/renzotupapa563-creator/licencias-ahk/main/licencias.txt"
+
+; 💻 Generar HWID
+DllCall("GetVolumeInformationW","Str","C:\","Str","","UInt",0,"UIntP",serial,"UInt",0,"UInt",0,"Str","", "UInt",0)
+hwid := serial
 
 ; 🧠 Pedir clave
 InputBox, userKey, Licencia, Ingresa tu clave:
@@ -15,38 +19,36 @@ if (userKey = "")
 ; 🌐 Descargar lista de licencias
 tempFile := A_Temp "\keys.txt"
 UrlDownloadToFile, %url%, %tempFile%
-
 FileRead, content, %tempFile%
 
-; 🔍 Validar clave
-if !InStr(content, userKey)
+; 🔍 Validar clave y HWID
+valid := false
+newContent := ""
+Loop, Parse, content, `n, `r
 {
-    MsgBox, 48, Error, Licencia inválida
+    StringSplit, parts, A_LoopField, |
+    clave := parts1
+    keyHWID := parts2
+
+    if (clave = userKey)
+    {
+        if (keyHWID = "" || keyHWID = hwid) ; si está vacía o coincide
+        {
+            valid := true
+            keyHWID := hwid ; asigna HWID a la clave
+        }
+    }
+    newContent .= clave "|" keyHWID "`n"
+}
+
+if (!valid)
+{
+    MsgBox, 48, Error, Licencia inválida o ya usada en otra PC
     ExitApp
 }
 
+; 💾 Guardar HWID actualizado (sobrescribiendo temporal)
+FileDelete, %tempFile%
+FileAppend, %newContent%, %tempFile%
+
 MsgBox, 64, OK, Licencia válida ✔
-
-SetTimer, StaminaHack, 100
-return
-
-
-; 💪 TU HACK ORIGINAL
-StaminaHack:
-Process, Exist, gta_sa.exe
-pid := ErrorLevel
-
-if (pid)
-{
-    hProcess := DllCall("OpenProcess", "UInt", 0x1F0FFF, "Int", 0, "UInt", pid)
-
-    staminaAddr := 0xB7CDB4
-
-    VarSetCapacity(buffer, 4, 0)
-    NumPut(1000.0, buffer, 0, "Float")
-
-    DllCall("WriteProcessMemory", "Ptr", hProcess, "Ptr", staminaAddr, "Ptr", &buffer, "UInt", 4, "Ptr", 0)
-
-    DllCall("CloseHandle", "Ptr", hProcess)
-}
-return
